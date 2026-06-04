@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using DeliveryRushExam.Data;
+using DeliveryRushExam.UGS;
 using UnityEngine;
 
 namespace DeliveryRushExam.Save
@@ -12,10 +13,25 @@ namespace DeliveryRushExam.Save
 
         private ISaveService saveService;
 
-        private async void Awake()
+        [SerializeField] private UgsInitializer ugsInitializer;
+
+        private async void Start()
         {
+            if (ugsInitializer != null)
+            {
+                await WaitForUgs();
+            }
+
             saveService = ServiceLocator.Get<ISaveService>();
             await LoadProgressAsync();
+        }
+
+        private async Task WaitForUgs()
+        {
+            while (!ugsInitializer.IsReady)
+            {
+                await Task.Yield();
+            }
         }
 
         public async Task LoadProgressAsync()
